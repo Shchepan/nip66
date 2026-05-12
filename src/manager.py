@@ -71,4 +71,24 @@ class Manager:
             )
         for tenant in tenants_in_apartment ] 
     
-    
+    def get_tax(self, year: int, month: int, tax_rate: float) -> int:
+        """Zwraca sumę przychodów wymnożoną przez stawkę podatku (zaokrągloną do pełnych zł)"""
+        total_income = sum(
+            transfer.amount_pln for transfer in self.transfers 
+            if transfer.settlement_year == year and transfer.settlement_month == month
+        )
+        return round(total_income * tax_rate)
+
+    def find_apartments_without_bills(self, year: int, month: int) -> list:
+        """Zwraca listę kluczy mieszkań, które nie mają żadnego rachunku w danym miesiącu"""
+        missing_apartments = []
+        for apartment_key in self.apartments:
+            
+            has_bills = any(
+                bill.apartment == apartment_key and bill.settlement_year == year and bill.settlement_month == month 
+                for bill in self.bills
+            )
+            if not has_bills:
+                missing_apartments.append(apartment_key)
+                
+        return missing_apartments
